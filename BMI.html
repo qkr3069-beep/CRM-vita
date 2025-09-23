@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI 계산기</title>
+<style>
+  body {font-family:"Noto Sans KR",sans-serif;background:#f0fff9;margin:0;padding:30px;color:#0f172a;}
+  .card {max-width:420px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.1);padding:24px;}
+  h1 {font-size:24px;margin-bottom:16px;text-align:center;}
+  label {display:block;margin:10px 0 4px;}
+  input {width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:16px;}
+  button {width:100%;margin-top:16px;padding:12px;border:none;border-radius:8px;
+          background:#32d3b6;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;}
+  button:hover {background:#28bda3;}
+  .result {margin-top:20px;padding:16px;border-radius:12px;text-align:center;font-size:18px;font-weight:bold;display:none;line-height:1.6;}
+  .under {background:#dbeafe;color:#1e3a8a;}
+  .normal {background:#dcfce7;color:#166534;}
+  .over {background:#fef9c3;color:#854d0e;}
+  .obese1 {background:#fee2e2;color:#991b1b;}
+  .obese2 {background:#fecaca;color:#7f1d1d;}
+  .obese3 {background:#fca5a5;color:#7f1d1d;}
+  .banner {margin-top:18px;padding:14px;border-radius:16px;display:flex;align-items:center;gap:12px;color:#003b2f;
+           background:linear-gradient(135deg,#e6fff7,#ffffff);border:1px solid rgba(50,211,182,.35);box-shadow:0 10px 30px rgba(3,90,70,.08);
+           text-decoration:none;justify-content:space-between;flex-wrap:wrap;}
+  .brand {display:flex;align-items:center;gap:10px;}
+  .brand img{width:44px;height:44px;border-radius:12px;background:#fff;padding:4px;box-shadow:0 4px 14px rgba(50,211,182,.35);}
+  .btitle{font-weight:900}
+  .bsub{font-size:13px;color:#0a3a2f}
+  .bcta {padding:10px 14px;border-radius:12px;border:1px solid #dbe7e3;background:#ffffff;font-weight:800;text-decoration:none;color:#0b3d32}
+  .bcta:hover{border-color:#32d3b6;box-shadow:0 0 0 3px rgba(50,211,182,.13)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>BMI 계산기</h1>
+    <label for="height">키 (cm)</label>
+    <input type="number" id="height" placeholder="예: 170">
+    <label for="weight">체중 (kg)</label>
+    <input type="number" id="weight" placeholder="예: 65">
+    <button onclick="calcBMI()">계산하기</button>
+    <div id="result" class="result"></div>
+  </div>
+
+<script>
+function calcBMI(){
+  const h = parseFloat(document.getElementById("height").value);
+  const w = parseFloat(document.getElementById("weight").value);
+  const res = document.getElementById("result");
+  if(!h || !w){ alert("키와 체중을 모두 입력하세요."); return; }
+
+  const bmi = w / ((h/100)**2);
+  let grade="", cls="", msg="";
+  if(bmi < 18.5){
+    grade="저체중"; cls="under";
+    msg="바람에 날아가겠어요! 🪁";
+  }
+  else if(bmi < 23){
+    grade="정상"; cls="normal";
+    msg="기가 막히는군요! 오예! 🎉";
+  }
+  else if(bmi < 25){
+    grade="과체중(주의)"; cls="over";
+    msg="살짝 오버했네요, 맛있는 건 잠시 참아볼까요? 🍰🙈";
+  }
+  else if(bmi < 30){
+    grade="비만 (1단계)"; cls="obese1";
+    msg="몸이 도움을 요청하네요! 🚨 작은 변화부터 시작해요.";
+  }
+  else if(bmi < 35){
+    grade="비만 (2단계)"; cls="obese2";
+    msg="건강이 SOS를 보내고 있어요! 🆘 함께 해결책을 찾아봐요.";
+  }
+  else {
+    grade="고도비만 (3단계)"; cls="obese3";
+    msg="당신의 건강 모험, 지금이 바로 전환점! 🌟 작은 걸음이 큰 변화를 만듭니다.";
+  }
+
+  res.style.display="block";
+  res.className="result " + cls;
+  res.innerHTML = `
+    당신의 BMI는 <b>${bmi.toFixed(1)}</b> 입니다.<br>
+    등급: <b>${grade}</b><br>
+    <span>${msg}</span>
+    <div style="margin-top:12px">
+      <a href="https://omnicare.biz/service/service.php" target="_blank" class="banner" aria-label="비타브릿지 바로가기">
+        <div class="brand">
+          <!-- 아이콘 파일을 서버/호스팅에 업로드한 뒤 실제 URL을 아래에 넣으세요 -->
+          <img src="https://postfiles.pstatic.net/MjAyNTA5MjNfMTU0/MDAxNzU4NTg5NDgxOTE4.PrpGxh4CjcpdLMLc-wVu8H3k_jnoh_BUEFrZFUEjs98g.RqTvVkevz79YCIZKJFKufFXM1ufrsZI53axOaguJpEgg.PNG/%EB%B9%84%ED%83%80%EB%B8%8C%EB%A6%BF%EC%A7%80_%EB%A1%9C%EA%B3%A0_no_text.png?type=w966" alt="비타브릿지 아이콘"/>
+          <div>
+            <div class="btitle">비타브릿지로 건강검진 바로 예약</div>
+            <div class="bsub">검진기관 비교 · 일정 선택 · 간편 예약</div>
+          </div>
+        </div>
+        <span class="bcta">바로가기 ↗</span>
+      </a>
+    </div>`;
+}
+</script>
+</body>
+</html>
