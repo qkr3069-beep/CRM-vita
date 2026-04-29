@@ -14,7 +14,7 @@
 
     body {
       background: #f4f7fb;
-      color: #1f2937;
+      color: #0f172a;
     }
 
     .app {
@@ -24,17 +24,20 @@
     }
 
     .sidebar {
-      background: #0f172a;
-      color: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
+      color: #0f172a;
       padding: 24px 18px;
+      border-right: 1px solid #dbe7f5;
+      box-shadow: 8px 0 28px rgba(15, 23, 42, 0.04);
     }
 
     .logo {
-      margin-bottom: 32px;
+      margin-bottom: 34px;
+      padding: 2px 0 6px;
     }
 
     .logo-img {
-      width: 155px;
+      width: 165px;
       height: auto;
       display: block;
       object-fit: contain;
@@ -42,23 +45,33 @@
 
     .menu-title {
       font-size: 12px;
-      color: #94a3b8;
-      margin: 24px 0 10px;
+      color: #64748b;
+      margin: 26px 0 10px;
+      font-weight: 700;
     }
 
     .menu-item {
       padding: 12px 14px;
       border-radius: 12px;
-      color: #cbd5e1;
+      color: #334155;
       font-size: 14px;
       cursor: pointer;
       margin-bottom: 6px;
+      font-weight: 700;
+      transition: 0.2s;
+      border: 1px solid transparent;
     }
 
-    .menu-item.active,
+    .menu-item.active {
+      background: #eaf2ff;
+      color: #1d4ed8;
+      border-color: #cfe0ff;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+    }
+
     .menu-item:hover {
-      background: #1e293b;
-      color: #fff;
+      background: #f1f6ff;
+      color: #1d4ed8;
     }
 
     .main {
@@ -315,7 +328,7 @@
     }
 
     .status-box {
-      background: #f8fafc;
+      background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 14px;
