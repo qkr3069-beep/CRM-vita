@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실시간 예약 상담 현황판</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #0f172a;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .tv-dashboard {
+      width: 100vw;
+      height: 100vh;
+      padding: 42px 54px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .logo-wrap {
+      width: 230px;
+      min-height: 64px;
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .logo-img {
+      width: 185px;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .title-area h1 {
+      font-size: 44px;
+      letter-spacing: -1.6px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+
+
+    .main-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      min-height: 0;
+    }
+
+    .metric-card {
+      position: relative;
+      border-radius: 36px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(18px);
+      padding: 34px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 999px;
+      top: -150px;
+      right: -130px;
+      background: rgba(96, 165, 250, 0.22);
+      filter: blur(6px);
+    }
+
+    .metric-top {
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-label {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+      color: #f8fafc;
+    }
+
+    .metric-value-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .metric-value {
+      font-size: 132px;
+      font-weight: 950;
+      line-height: 0.92;
+      letter-spacing: -6px;
+      color: #ffffff;
+      text-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .metric-card.updated .metric-value {
+      transform: scale(1.08);
+      color: #bfdbfe;
+    }
+
+    .metric-unit {
+      font-size: 38px;
+      font-weight: 900;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+
+    .chart-wrap {
+      position: relative;
+      z-index: 1;
+      height: 42%;
+      min-height: 240px;
+      margin-top: 30px;
+      border-radius: 28px;
+      background: rgba(15, 23, 42, 0.36);
+      border: 1px solid rgba(226, 232, 240, 0.12);
+      padding: 22px 20px 16px;
+    }
+
+    .chart-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #cbd5e1;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .chart-title span:last-child {
+      color: #93c5fd;
+    }
+
+    svg {
+      width: 100%;
+      height: calc(100% - 28px);
+      overflow: visible;
+    }
+
+    .grid-line {
+      stroke: rgba(226, 232, 240, 0.12);
+      stroke-width: 1;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 8px 14px rgba(96, 165, 250, 0.25));
+    }
+
+    .chart-area {
+      opacity: 0.18;
+    }
+
+    .chart-point {
+      stroke: #fff;
+      stroke-width: 3;
+    }
+
+    .waiting-line {
+      stroke: #60a5fa;
+    }
+
+    .waiting-area {
+      fill: #60a5fa;
+    }
+
+    .active-line {
+      stroke: #22c55e;
+    }
+
+    .active-area {
+      fill: #22c55e;
+    }
+
+    .abandoned-line {
+      stroke: #f97316;
+    }
+
+    .abandoned-area {
+      fill: #f97316;
+    }
+
+
+    @media (max-width: 1400px) {
+      .tv-dashboard {
+        padding: 30px;
+        gap: 22px;
+      }
+
+      .title-area h1 {
+        font-size: 34px;
+      }
+
+      .main-grid {
+        gap: 18px;
+      }
+
+      .metric-card {
+        padding: 26px;
+      }
+
+      .metric-label {
+        font-size: 26px;
+      }
+
+      .metric-value {
+        font-size: 96px;
+      }
+
+      .metric-unit {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        overflow: auto;
+      }
+
+      .tv-dashboard {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .live-time {
+        text-align: left;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="tv-dashboard">
+    <header class="header">
+      <div class="brand">
+        <div class="logo-wrap">
+          <img src="./비타브릿지_로고.png" alt="비타브릿지 로고" class="logo-img" />
+        </div>
+        <div class="title-area">
+          <h1>실시간 예약 상담 현황</h1>
+          
+        </div>
+      </div>
+
+    </header>
+
+    <section class="main-grid">
+      <article class="metric-card" id="waitingCard">
+        <div class="metric-top">
+          <div class="metric-label">예약 대기호</div>
+          <div class="metric-value-row">
+            <div class="metric-value" id="waitingCalls">21</div>
+            <div class="metric-unit">호</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">
+            <span>최근 추이</span>
+            <span>WAITING</span>
+          </div>
+          <svg id="waitingChart" viewBox="0 0 420 220" preserveAspectRatio="none"></svg>
+        </div>
+      </article>
+
+      <article class="metric-card" id="activeCard">
+        <div class="metric-top">
+          <div class="metric-label">응대호</div>
+          <div class="metric-value-row">
+            <div class="metric-value" id="activeCalls">3</div>
+            <div class="metric-unit">호</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">
+            <span>최근 추이</span>
+            <span>ACTIVE</span>
+          </div>
+          <svg id="activeChart" viewBox="0 0 420 220" preserveAspectRatio="none"></svg>
+        </div>
+      </article>
+
+      <article class="metric-card" id="abandonedCard">
+        <div class="metric-top">
+          <div class="metric-label">당일 누적 포기호</div>
+          <div class="metric-value-row">
+            <div class="metric-value" id="abandonedCalls">9</div>
+            <div class="metric-unit">호</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">
+            <span>최근 추이</span>
+            <span>ABANDONED</span>
+          </div>
+          <svg id="abandonedChart" viewBox="0 0 420 220" preserveAspectRatio="none"></svg>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <script>
+    const state = {
+      waiting: [19, 21, 20, 22, 18, 21, 23, 20, 19, 21],
+      active: [2, 3, 2, 2, 3, 2, 3, 3, 2, 3],
+      abandoned: [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    };
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      });
+    }
+
+
+    function buildLinePath(values, min, max, width, height, padding) {
+      const usableWidth = width - padding * 2;
+      const usableHeight = height - padding * 2;
+      const range = max - min || 1;
+
+      return values.map((value, index) => {
+        const x = padding + (usableWidth / (values.length - 1)) * index;
+        const y = padding + usableHeight - ((value - min) / range) * usableHeight;
+        return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+      }).join(" ");
+    }
+
+    function buildAreaPath(values, min, max, width, height, padding) {
+      const linePath = buildLinePath(values, min, max, width, height, padding);
+      const usableWidth = width - padding * 2;
+      const baseY = height - padding;
+      const lastX = padding + usableWidth;
+      return `${linePath} L ${lastX} ${baseY} L ${padding} ${baseY} Z`;
+    }
+
+    function getPoints(values, min, max, width, height, padding) {
+      const usableWidth = width - padding * 2;
+      const usableHeight = height - padding * 2;
+      const range = max - min || 1;
+
+      return values.map((value, index) => {
+        const x = padding + (usableWidth / (values.length - 1)) * index;
+        const y = padding + usableHeight - ((value - min) / range) * usableHeight;
+        return { x, y };
+      });
+    }
+
+    function renderChart(svgId, values, min, max, lineClass, areaClass) {
+      const svg = document.getElementById(svgId);
+      const width = 420;
+      const height = 220;
+      const padding = 22;
+      const linePath = buildLinePath(values, min, max, width, height, padding);
+      const areaPath = buildAreaPath(values, min, max, width, height, padding);
+      const points = getPoints(values, min, max, width, height, padding);
+
+      const gridLines = [0.25, 0.5, 0.75].map((ratio) => {
+        const y = padding + (height - padding * 2) * ratio;
+        return `<line class="grid-line" x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" />`;
+      }).join("");
+
+      const circles = points.map((point) => {
+        return `<circle class="chart-point ${areaClass}" cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="5" />`;
+      }).join("");
+
+      svg.innerHTML = `
+        ${gridLines}
+        <path class="chart-area ${areaClass}" d="${areaPath}"></path>
+        <path class="chart-line ${lineClass}" d="${linePath}"></path>
+        ${circles}
+      `;
+    }
+
+    function animateCard(cardId) {
+      const card = document.getElementById(cardId);
+      card.classList.add("updated");
+      setTimeout(() => card.classList.remove("updated"), 350);
+    }
+
+    function updateLiveDashboard() {
+      const waitingValue = getRandomInt(17, 23);
+      const activeValue = getRandomInt(2, 3);
+      const abandonedValue = 9;
+
+      state.waiting.push(waitingValue);
+      state.active.push(activeValue);
+      state.abandoned.push(abandonedValue);
+
+      state.waiting.shift();
+      state.active.shift();
+      state.abandoned.shift();
+
+      document.getElementById("waitingCalls").textContent = waitingValue;
+      document.getElementById("activeCalls").textContent = activeValue;
+      document.getElementById("abandonedCalls").textContent = abandonedValue;
+
+      renderChart("waitingChart", state.waiting, 17, 23, "waiting-line", "waiting-area");
+      renderChart("activeChart", state.active, 2, 3, "active-line", "active-area");
+      renderChart("abandonedChart", state.abandoned, 8, 10, "abandoned-line", "abandoned-area");
+
+      animateCard("waitingCard");
+      animateCard("activeCard");
+      animateCard("abandonedCard");
+
+    }
+
+    updateLiveDashboard();
+    setInterval(updateLiveDashboard, 30000);
+  </script>
+</body>
+</html>
